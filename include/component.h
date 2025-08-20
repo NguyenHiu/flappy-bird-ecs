@@ -1,0 +1,62 @@
+#pragma once
+
+#include <SFML/Graphics.hpp>
+#include <math.h>
+
+struct PositionComponent
+{
+    float x, y;
+    PositionComponent(float x = 0, float y = 0) : x(x), y(y) {}
+};
+
+struct VelocityComponent
+{
+    float dx, dy;
+    float maxSpeed;
+    VelocityComponent(float dx = 0, float dy = 0, float maxSpeed = 200.f)
+        : dx(dx), dy(dy), maxSpeed(maxSpeed) {}
+};
+
+struct PhysicComponent
+{
+    bool hasGravity;
+    bool onGround;
+    float gravityScale;
+    PhysicComponent(bool gravity = true, float scale = 1.0f)
+        : hasGravity(gravity), onGround(false), gravityScale(scale) {}
+};
+
+// TODO: add z order
+struct SpriteComponent
+{
+    sf::Sprite sprite;
+    std::string name;
+    bool isFlipped;
+    SpriteComponent(const sf::Texture &texture, std::string name = "", bool isFlipped = false)
+        : sprite(texture), name(name), isFlipped(isFlipped) {}
+};
+
+// Horizontal Spritesheet component
+struct HSpritesheetComponent
+{
+    sf::Sprite sprite;
+    int fps;
+    std::string name;
+    bool isFlipped;
+    sf::Vector2u frameSize;
+    int curFrame;
+    float _curFrame;
+    int nFrame;
+    bool isLoop;
+    HSpritesheetComponent(const sf::Texture &texture, int fps, std::string name = "",
+                         bool isFlipped = false, sf::Vector2u frameSize = {0, 0})
+        : sprite(texture), fps(fps), name(name),
+          isFlipped(isFlipped), frameSize(frameSize),
+          curFrame(0), _curFrame(0), nFrame(1),
+          isLoop(true)
+    {
+        if (frameSize.x != 0) {
+            nFrame = texture.getSize().x / frameSize.x;
+        }
+    }
+};
