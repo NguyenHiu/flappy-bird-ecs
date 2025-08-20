@@ -2,6 +2,7 @@
 #include "texture_manager.h"
 #include "game_manager.h"
 #include "render_system.h"
+#include "physics_system.h"
 #include "component.h"
 
 void loadResources() {
@@ -22,16 +23,20 @@ int main() {
     GameManager& gMgr = GameManager::getInstance();
     RenderSystem* system_rd = new RenderSystem(game);
     gMgr.addSystem(system_rd);
+    PhysicsSystem* system_ps = new PhysicsSystem();
+    gMgr.addSystem(system_ps);
 
     Entity* bird = new Entity();
-    PhysicComponent* physicComp = new PhysicComponent(false);
-    bird->addComponent(physicComp);
-    PositionComponent* positionComp = new PositionComponent(200.0, 350.0);
-    bird->addComponent(positionComp);
+    PhysicComponent* comp_physic = new PhysicComponent(true);
+    bird->addComponent(comp_physic);
+    PositionComponent* comp_pos = new PositionComponent(200.0, 350.0);
+    bird->addComponent(comp_pos);
+    VelocityComponent* comp_vel = new VelocityComponent();
+    bird->addComponent(comp_vel);
     // SpriteComponent* spriteComp = new SpriteComponent(tMgr.get("bird"), "bird");
     // bird->addComponent(spriteComp);
-    HSpritesheetComponent* animationComp = new HSpritesheetComponent(tMgr.get("bird"), 10, "bird", true, {34, 24});
-    bird->addComponent(animationComp);
+    HSpritesheetComponent* comp_anim = new HSpritesheetComponent(tMgr.get("bird"), 10, "bird", true, {34, 24});
+    bird->addComponent(comp_anim);
 
     gMgr.addEntity(bird);
 

@@ -1,5 +1,6 @@
 #include "physics_system.h"
 #include "component.h"
+#include "logger.h"
 
 void PhysicsSystem::update(std::vector<Entity*>& entities, float dt) {
     for (auto* entity : entities) {
@@ -7,16 +8,21 @@ void PhysicsSystem::update(std::vector<Entity*>& entities, float dt) {
         auto* vel = entity->getComponent<VelocityComponent>();
         auto* phy = entity->getComponent<PhysicComponent>();
 
-        // apply gravity
+        if (!pos || !vel || !phy) {
+            Logger::Debug("Entity", entity->getId(), "doesn't have enough components to perform physic");
+            continue;
+        }
+
+        // Apply gravity
         if (phy && phy->hasGravity && !phy->onGround) {
             vel->dy -= 800.0f * phy->gravityScale * dt;
         }
 
-        // clamp velocity
+        // Clamp velocity
         if (vel->dx > vel->maxSpeed) vel->dx = vel->maxSpeed;
         if (vel->dx < -vel->maxSpeed) vel->dx = -vel->maxSpeed;
 
-        // apply velocity
+        // Apply velocity
         pos->x += vel->dx * dt;
         pos->y += vel->dy * dt;
     }

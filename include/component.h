@@ -22,7 +22,7 @@ struct PhysicComponent
     bool hasGravity;
     bool onGround;
     float gravityScale;
-    PhysicComponent(bool gravity = true, float scale = 1.0f)
+    PhysicComponent(bool gravity = true, float scale = -1.0f)
         : hasGravity(gravity), onGround(false), gravityScale(scale) {}
 };
 
