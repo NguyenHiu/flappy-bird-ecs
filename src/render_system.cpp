@@ -5,7 +5,7 @@
 void flipSprite(bool isFlipped, sf::Sprite &sprite)
 {
     // Flip
-    if (isFlipped != (sprite.getScale().x == 1))
+    if (isFlipped != (sprite.getScale().x < 0))
     {
         Logger::Debug("Flipping sprite...");
         sf::Vector2f curScale = sprite.getScale();
@@ -37,25 +37,25 @@ void RenderSystem::update(std::vector<Entity *> &entities, float dt)
         if (entity->hasComponent<SpriteComponent>())
         {
             SpriteComponent *sc = entity->getComponent<SpriteComponent>();
-            flipSprite(sc->isFlipped, sc->sprite);
-            rotateSprite(sc->rotationDegree, sc->sprite);
+            flipSprite(sc->spriteData.isFlipped, sc->spriteData.sprite);
+            rotateSprite(sc->spriteData.rotationDegree, sc->spriteData.sprite);
 
             // Update sprite position
             if (entity->hasComponent<PositionComponent>())
             {
                 PositionComponent *pc = entity->getComponent<PositionComponent>();
-                sc->sprite.setPosition({pc->x, pc->y});
+                sc->spriteData.sprite.setPosition({pc->x, pc->y});
             }
 
-            m_rw->draw(sc->sprite);
+            m_rw->draw(sc->spriteData.sprite);
         }
 
         // Run animation
         if (entity->hasComponent<HSpritesheetComponent>())
         {
             HSpritesheetComponent *sc = entity->getComponent<HSpritesheetComponent>();
-            flipSprite(sc->isFlipped, sc->sprite);
-            rotateSprite(sc->rotationDegree, sc->sprite);
+            flipSprite(sc->spriteData.isFlipped, sc->spriteData.sprite);
+            rotateSprite(sc->spriteData.rotationDegree, sc->spriteData.sprite);
 
             // Update sprite frame
             sc->_curFrame += sc->fps * dt;
@@ -70,16 +70,16 @@ void RenderSystem::update(std::vector<Entity *> &entities, float dt)
                     sc->curFrame = sc->nFrame - 1;
                 }
             }
-            sc->sprite.setTextureRect(getIntRect(sc->curFrame, sc->frameSize));
+            sc->spriteData.sprite.setTextureRect(getIntRect(sc->curFrame, sc->frameSize));
 
             // Update sprite position
             if (entity->hasComponent<PositionComponent>())
             {
                 PositionComponent *pc = entity->getComponent<PositionComponent>();
-                sc->sprite.setPosition({pc->x, pc->y});
+                sc->spriteData.sprite.setPosition({pc->x, pc->y});
             }
 
-            m_rw->draw(sc->sprite);
+            m_rw->draw(sc->spriteData.sprite);
         }
     }
 }

@@ -4,6 +4,8 @@
 #include <math.h>
 #include "key_map.h"
 #include "entity.h"
+#include "logger.h"
+#include "utils.h"
 
 struct PositionComponent
 {
@@ -33,46 +35,52 @@ struct PhysicComponent
     }
 };
 
-// TODO: add z order
-struct SpriteComponent
+struct SpriteData
 {
     sf::Sprite sprite;
     std::string name;
     bool isFlipped;
     float rotationDegree;
-    SpriteComponent(const sf::Texture &texture, std::string name = "", bool isFlipped = false)
-        : sprite(texture), name(name), isFlipped(isFlipped), rotationDegree(0)
+    float scaleVal;
+    SpriteData(const sf::Texture &texture, std::string name = "", bool isFlipped = false, float scaleVal = 1.f, sf::Vector2f origin = {0, 0})
+        : sprite(texture), name(name), isFlipped(isFlipped), rotationDegree(0), scaleVal(scaleVal)
     {
-        sprite.setOrigin(sprite.getGlobalBounds().size / 2.0f);
+        sprite.setOrigin(origin);
+        sprite.setScale({scaleVal, scaleVal});
+    }
+};
+
+// TODO: add z order
+struct SpriteComponent
+{
+    SpriteData spriteData;
+
+    SpriteComponent(
+        const sf::Texture &texture, std::string name = "",
+        bool isFlipped = false, float scaleVal = 1.f, sf::Vector2f originRatio = {0.5, 0.5}
+    ) : spriteData(texture, name, isFlipped, scaleVal, Utils::getVectorF(originRatio, texture.getSize()))
+    {
     }
 };
 
 // Horizontal Spritesheet component
 struct HSpritesheetComponent
 {
-    sf::Sprite sprite;
+    SpriteData spriteData;
     int fps;
-    std::string name;
-    bool isFlipped;
     sf::Vector2u frameSize;
     int curFrame;
     float _curFrame;
     int nFrame;
     bool isLoop;
-    float rotationDegree;
     HSpritesheetComponent(const sf::Texture &texture, int fps, std::string name = "",
-                          bool isFlipped = false, sf::Vector2u frameSize = {0, 0})
-        : sprite(texture), fps(fps), name(name),
-          isFlipped(isFlipped), frameSize(frameSize),
-          curFrame(0), _curFrame(0), nFrame(1),
-          isLoop(true), rotationDegree(0)
+                          bool isFlipped = false, sf::Vector2u frameSize = {0, 0},
+                          float scaleVal = 1.f, sf::Vector2f originRatio = {0.5, 0.5})
+        : spriteData(texture, name, isFlipped, scaleVal, Utils::getVectorF(originRatio, frameSize)), fps(fps),
+          frameSize(frameSize), curFrame(0), _curFrame(0), nFrame(1), isLoop(true)
     {
         if (frameSize.x != 0)
-        {
             nFrame = texture.getSize().x / frameSize.x;
-        }
-
-        sprite.setOrigin({static_cast<float>(frameSize.x) / 2.f, static_cast<float>(frameSize.y) / 2.f});
     }
 };
 

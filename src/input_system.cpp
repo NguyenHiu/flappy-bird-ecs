@@ -54,10 +54,10 @@ void InputSystem::processPlayerInfo(Entity *entity, InputComponent *comp)
                     comp_phy->jumpTimer = comp_phy->jumpCooldown;
                     Logger::Info("Jumping...");
                 }
-                else
-                {
-                    Logger::Info("Waiting for the cooldown...");
-                }
+                // else
+                // {
+                //     Logger::Info("Waiting for the cooldown...");
+                // }
                 break;
             }
 

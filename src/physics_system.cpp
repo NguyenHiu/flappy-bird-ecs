@@ -15,7 +15,7 @@ void PhysicsSystem::update(std::vector<Entity *> &entities, float dt)
 
         if (!pos || !vel || !phy)
         {
-            Logger::Debug("Entity", entity->getId(), "doesn't have enough components to perform physic");
+            // Logger::Debug("Entity", entity->getId(), "doesn't have enough components to perform physic");
             continue;
         }
 
@@ -45,8 +45,8 @@ void PhysicsSystem::update(std::vector<Entity *> &entities, float dt)
             angleDegrees = angleRadians / M_PI * 180.f;
         }
         if (entity->hasComponent<SpriteComponent>())
-            entity->getComponent<SpriteComponent>()->rotationDegree = angleDegrees;
+            entity->getComponent<SpriteComponent>()->spriteData.rotationDegree = angleDegrees;
         if (entity->hasComponent<HSpritesheetComponent>())
-            entity->getComponent<HSpritesheetComponent>()->rotationDegree = angleDegrees;
+            entity->getComponent<HSpritesheetComponent>()->spriteData.rotationDegree = angleDegrees;
     }
 }

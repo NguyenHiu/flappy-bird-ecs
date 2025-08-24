@@ -39,6 +39,13 @@ int main() {
     InputSystem* system_input = new InputSystem(nullptr);
     gMgr.addSystem(system_input);
 
+    Entity* background = new Entity();
+    SpriteComponent* bg_comp_sprite = new SpriteComponent(tMgr.get("background"), "background", false, 1.5, {0, 0});
+    background->addComponent(bg_comp_sprite);
+    PositionComponent* bg_comp_pos = new PositionComponent(0, 0);
+    background->addComponent(bg_comp_pos);
+    gMgr.addEntity(background);
+
     Entity* bird = new Entity();
     PhysicComponent* comp_physic = new PhysicComponent(true, JUMP_COOLDOWN, JUMP_FORCE, 1);
     bird->addComponent(comp_physic);
@@ -48,7 +55,7 @@ int main() {
     bird->addComponent(comp_vel);
     // SpriteComponent* spriteComp = new SpriteComponent(tMgr.get("bird"), "bird");
     // bird->addComponent(spriteComp);
-    HSpritesheetComponent* comp_anim = new HSpritesheetComponent(tMgr.get(BIRD_TAG), BIRD_FPS, BIRD_TAG, true, BIRD_FRAME);
+    HSpritesheetComponent* comp_anim = new HSpritesheetComponent(tMgr.get(BIRD_TAG), BIRD_FPS, BIRD_TAG, false, BIRD_FRAME, 1.2);
     bird->addComponent(comp_anim);
     InputComponent* comp_input = new InputComponent({GameAction::JUMP}, EntityType::PLAYER);
     bird->addComponent(comp_input);
