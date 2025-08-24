@@ -3,7 +3,18 @@
 #include "game_manager.h"
 #include "render_system.h"
 #include "physics_system.h"
+#include "input_system.h"
 #include "component.h"
+
+const float JUMP_COOLDOWN = 0.3f;
+const float JUMP_FORCE = -500.f;
+const float GRAVITY = 1800.f;
+const sf::Vector2f START_POSITION = {200.f, 350.f};
+const int BIRD_FPS = 10;
+const std::string BIRD_TAG = "bird";
+const std::string GAME_TITLE = "Nappy-Bird";
+const sf::Vector2u BIRD_FRAME = {34, 24};
+const float MAX_SPEED = 500.f;
 
 void loadResources() {
     TextureManager& tMgr = TextureManager::getInstance();
@@ -18,25 +29,29 @@ int main() {
     TextureManager& tMgr = TextureManager::getInstance(); // Later, we will create factory to create these components?
 
     sf::Vector2u gameSize = {400, 700};
-    sf::RenderWindow* game = new sf::RenderWindow(sf::VideoMode(gameSize), "Flappy-Bird");
+    sf::RenderWindow* game = new sf::RenderWindow(sf::VideoMode(gameSize), GAME_TITLE);
 
     GameManager& gMgr = GameManager::getInstance();
     RenderSystem* system_rd = new RenderSystem(game);
     gMgr.addSystem(system_rd);
-    PhysicsSystem* system_ps = new PhysicsSystem();
+    PhysicsSystem* system_ps = new PhysicsSystem(GRAVITY);
     gMgr.addSystem(system_ps);
+    InputSystem* system_input = new InputSystem(nullptr);
+    gMgr.addSystem(system_input);
 
     Entity* bird = new Entity();
-    PhysicComponent* comp_physic = new PhysicComponent(true);
+    PhysicComponent* comp_physic = new PhysicComponent(true, JUMP_COOLDOWN, JUMP_FORCE, 1);
     bird->addComponent(comp_physic);
-    PositionComponent* comp_pos = new PositionComponent(200.0, 350.0);
+    PositionComponent* comp_pos = new PositionComponent(START_POSITION.x, START_POSITION.y);
     bird->addComponent(comp_pos);
-    VelocityComponent* comp_vel = new VelocityComponent();
+    VelocityComponent* comp_vel = new VelocityComponent(0, 0, MAX_SPEED);
     bird->addComponent(comp_vel);
     // SpriteComponent* spriteComp = new SpriteComponent(tMgr.get("bird"), "bird");
     // bird->addComponent(spriteComp);
-    HSpritesheetComponent* comp_anim = new HSpritesheetComponent(tMgr.get("bird"), 10, "bird", true, {34, 24});
+    HSpritesheetComponent* comp_anim = new HSpritesheetComponent(tMgr.get(BIRD_TAG), BIRD_FPS, BIRD_TAG, true, BIRD_FRAME);
     bird->addComponent(comp_anim);
+    InputComponent* comp_input = new InputComponent({GameAction::JUMP}, EntityType::PLAYER);
+    bird->addComponent(comp_input);
 
     gMgr.addEntity(bird);
 

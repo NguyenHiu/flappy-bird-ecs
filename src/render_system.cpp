@@ -13,6 +13,13 @@ void flipSprite(bool isFlipped, sf::Sprite &sprite)
     }
 }
 
+void rotateSprite(float rotationDegrees, sf::Sprite& sprite) 
+{
+    if (sprite.getRotation().asDegrees() != rotationDegrees) {
+        sprite.setRotation(sf::degrees(rotationDegrees));
+    }
+}
+
 sf::IntRect getIntRect(int idx, sf::Vector2u frameSize)
 {
     return sf::IntRect(
@@ -31,6 +38,7 @@ void RenderSystem::update(std::vector<Entity *> &entities, float dt)
         {
             SpriteComponent *sc = entity->getComponent<SpriteComponent>();
             flipSprite(sc->isFlipped, sc->sprite);
+            rotateSprite(sc->rotationDegree, sc->sprite);
 
             // Update sprite position
             if (entity->hasComponent<PositionComponent>())
@@ -47,6 +55,7 @@ void RenderSystem::update(std::vector<Entity *> &entities, float dt)
         {
             HSpritesheetComponent *sc = entity->getComponent<HSpritesheetComponent>();
             flipSprite(sc->isFlipped, sc->sprite);
+            rotateSprite(sc->rotationDegree, sc->sprite);
 
             // Update sprite frame
             sc->_curFrame += sc->fps * dt;

@@ -2,6 +2,8 @@
 
 #include <SFML/Graphics.hpp>
 #include <math.h>
+#include "key_map.h"
+#include "entity.h"
 
 struct PositionComponent
 {
@@ -22,8 +24,13 @@ struct PhysicComponent
     bool hasGravity;
     bool onGround;
     float gravityScale;
-    PhysicComponent(bool gravity = true, float scale = -1.0f)
-        : hasGravity(gravity), onGround(false), gravityScale(scale) {}
+    float jumpCooldown;
+    float jumpTimer;
+    float jumpForce;
+    PhysicComponent(bool gravity = true, float jumpCooldown = 1.5f, float jumpForce = 600.f, float scale = 1.0f)
+        : hasGravity(gravity), onGround(false), gravityScale(scale), jumpCooldown(jumpCooldown), jumpForce(jumpForce)
+    {
+    }
 };
 
 // TODO: add z order
@@ -32,8 +39,12 @@ struct SpriteComponent
     sf::Sprite sprite;
     std::string name;
     bool isFlipped;
+    float rotationDegree;
     SpriteComponent(const sf::Texture &texture, std::string name = "", bool isFlipped = false)
-        : sprite(texture), name(name), isFlipped(isFlipped) {}
+        : sprite(texture), name(name), isFlipped(isFlipped), rotationDegree(0)
+    {
+        sprite.setOrigin(sprite.getGlobalBounds().size / 2.0f);
+    }
 };
 
 // Horizontal Spritesheet component
@@ -48,15 +59,29 @@ struct HSpritesheetComponent
     float _curFrame;
     int nFrame;
     bool isLoop;
+    float rotationDegree;
     HSpritesheetComponent(const sf::Texture &texture, int fps, std::string name = "",
-                         bool isFlipped = false, sf::Vector2u frameSize = {0, 0})
+                          bool isFlipped = false, sf::Vector2u frameSize = {0, 0})
         : sprite(texture), fps(fps), name(name),
           isFlipped(isFlipped), frameSize(frameSize),
           curFrame(0), _curFrame(0), nFrame(1),
-          isLoop(true)
+          isLoop(true), rotationDegree(0)
     {
-        if (frameSize.x != 0) {
+        if (frameSize.x != 0)
+        {
             nFrame = texture.getSize().x / frameSize.x;
         }
+
+        sprite.setOrigin({static_cast<float>(frameSize.x) / 2.f, static_cast<float>(frameSize.y) / 2.f});
+    }
+};
+
+struct InputComponent
+{
+    std::vector<GameAction> listendedActions;
+    EntityType entityType;
+    InputComponent(std::vector<GameAction> actions, EntityType type)
+        : listendedActions(actions), entityType(type)
+    {
     }
 };

@@ -2,6 +2,11 @@
 #include <unordered_map>
 #include "utils.h"
 
+enum class EntityType {
+    PLAYER,
+    MENU
+};
+
 class Entity
 {
 private:
