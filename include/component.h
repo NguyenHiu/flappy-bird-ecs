@@ -93,3 +93,17 @@ struct InputComponent
     {
     }
 };
+
+struct BirdRotateComponent {
+    float defaultAngle;
+    float threshold;
+    BirdRotateComponent(float defaultAngle = -25.f, float threshold = 50.f)
+        : defaultAngle(defaultAngle), threshold(threshold)
+        {}
+};
+
+struct InfBgComponent {
+    int tag;
+    float width;
+    InfBgComponent(int tag, float width) : tag(tag), width(width) {}
+};

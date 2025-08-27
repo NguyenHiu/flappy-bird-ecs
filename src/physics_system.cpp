@@ -3,8 +3,6 @@
 #include "component.h"
 #include "logger.h"
 
-const float ROTATE_THRESHOLD = 200.f;
-
 void PhysicsSystem::update(std::vector<Entity *> &entities, float dt)
 {
     for (auto *entity : entities)
@@ -37,16 +35,25 @@ void PhysicsSystem::update(std::vector<Entity *> &entities, float dt)
         pos->y += vel->dy * dt;
 
         // Rotate the bird =D
-        float angleDegrees = -25;
-        if (vel->dy > ROTATE_THRESHOLD)
+        if (entity->hasComponent<BirdRotateComponent>())
         {
-            // Calculate the angle between the maximum velocity (the jump force) and the current one
-            float angleRadians = std::asin(vel->dy / vel->maxSpeed);
-            angleDegrees = angleRadians / M_PI * 180.f;
+            this->processBirdRotate(entity, vel->dy, vel->maxSpeed);
         }
-        if (entity->hasComponent<SpriteComponent>())
-            entity->getComponent<SpriteComponent>()->spriteData.rotationDegree = angleDegrees;
-        if (entity->hasComponent<HSpritesheetComponent>())
-            entity->getComponent<HSpritesheetComponent>()->spriteData.rotationDegree = angleDegrees;
     }
+}
+
+void PhysicsSystem::processBirdRotate(Entity *entity, float vy, float maxYSpeed)
+{
+    BirdRotateComponent *comp = entity->getComponent<BirdRotateComponent>();
+    float angle = comp->defaultAngle;
+    if (vy > comp->threshold)
+    {
+        // Calculate the angle between the maximum velocity (the jump force) and the current one
+        float angleRadians = std::asin(vy / maxYSpeed);
+        angle = angleRadians / M_PI * 180.f;
+    }
+    if (entity->hasComponent<SpriteComponent>())
+        entity->getComponent<SpriteComponent>()->spriteData.rotationDegree = angle;
+    if (entity->hasComponent<HSpritesheetComponent>())
+        entity->getComponent<HSpritesheetComponent>()->spriteData.rotationDegree = angle;
 }

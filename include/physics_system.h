@@ -13,4 +13,7 @@ public:
     PhysicsSystem(float gravity) : m_gravity(gravity) {};
     ~PhysicsSystem() {};
     void update(std::vector<Entity *> &entities, float dt);
+
+private:
+    void processBirdRotate(Entity *entity, float vy, float maxYSpeed);
 };
