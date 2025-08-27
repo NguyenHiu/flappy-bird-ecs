@@ -18,9 +18,6 @@ void InfBgSystem::update(std::vector<Entity *> &entities, float dt)
             continue;
         }
 
-        // Move the entity
-        vel_comp->dx -= 10;
-
         // Store the size of each enity
         size = inf_comp->width;
         if (sizes.find(inf_comp->tag) == sizes.end())

@@ -60,7 +60,7 @@ int main() {
     ground->addComponent(gr_comp_phy);
     InfBgComponent* gr_comp_infBg = new InfBgComponent(1, tMgr.get("base").getSize().x);
     ground->addComponent(gr_comp_infBg);
-    VelocityComponent* gr_comp_vel = new VelocityComponent(0, 0, 150.f);
+    VelocityComponent* gr_comp_vel = new VelocityComponent(-150.f, 0, 150.f);
     ground->addComponent(gr_comp_vel);
     gMgr.addEntity(ground);
 
@@ -73,7 +73,7 @@ int main() {
     ground1->addComponent(gr1_comp_phy);
     InfBgComponent* gr1_comp_infBg = new InfBgComponent(1, tMgr.get("base").getSize().x);
     ground1->addComponent(gr1_comp_infBg);
-    VelocityComponent* gr1_comp_vel = new VelocityComponent(0, 0, 150.f);
+    VelocityComponent* gr1_comp_vel = new VelocityComponent(-150.f, 0, 150.f);
     ground1->addComponent(gr1_comp_vel);
     gMgr.addEntity(ground1);
 
@@ -86,7 +86,7 @@ int main() {
     ground2->addComponent(gr2_comp_phy);
     InfBgComponent* gr2_comp_infBg = new InfBgComponent(1, tMgr.get("base").getSize().x);
     ground2->addComponent(gr2_comp_infBg);
-    VelocityComponent* gr2_comp_vel = new VelocityComponent(0, 0, 150.f);
+    VelocityComponent* gr2_comp_vel = new VelocityComponent(-150.f, 0, 150.f);
     ground2->addComponent(gr2_comp_vel);
     gMgr.addEntity(ground2);
 
