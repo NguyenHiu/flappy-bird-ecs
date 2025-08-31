@@ -1,5 +1,7 @@
 #include "input_system.h"
 #include "logger.h"
+#include "game_manager.h"
+
 
 InputSystem::InputSystem(KeyMap *keyMap)
 {
@@ -21,14 +23,14 @@ void InputSystem::update(std::vector<Entity *> &entities, float dt)
         {
             InputComponent *comp = entity->getComponent<InputComponent>();
 
-            switch (comp->entityType)
+            switch (entity->getType())
             {
-            case EntityType::PLAYER:
+            case EntityType::BIRD:
                 this->processPlayerInfo(entity, comp);
                 break;
 
             default:
-                Logger::Warn("[Input System] Invalid entity type,", static_cast<int>(comp->entityType));
+                Logger::Warn("[Input System] Invalid entity type,", static_cast<int>(entity->getType()));
                 break;
             }
         }
@@ -45,6 +47,14 @@ void InputSystem::processPlayerInfo(Entity *entity, InputComponent *comp)
             {
             case GameAction::JUMP:
             {
+                // Try to start the game
+                if (GameManager::getInstance().getGameState() == GameState::IDLE)
+                {
+                    GameManager::getInstance().startGame();
+                }
+
+                // Logger::Debug("state: ", static_cast<int>(GameManager::getInstance().getGameState()));
+
                 PhysicComponent *comp_phy = entity->getComponent<PhysicComponent>();
                 // Check jump timer
                 if (comp_phy->jumpTimer <= 0)

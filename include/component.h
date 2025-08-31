@@ -2,17 +2,20 @@
 
 #include <SFML/Graphics.hpp>
 #include <math.h>
+#include "texture_manager.h"
 #include "key_map.h"
 #include "entity.h"
 #include "logger.h"
 #include "utils.h"
 
+/// Position Component
 struct PositionComponent
 {
     float x, y;
     PositionComponent(float x = 0, float y = 0) : x(x), y(y) {}
 };
 
+/// Velocity Component
 struct VelocityComponent
 {
     float dx, dy;
@@ -21,6 +24,7 @@ struct VelocityComponent
         : dx(dx), dy(dy), maxSpeed(maxSpeed) {}
 };
 
+/// Physic Component
 struct PhysicComponent
 {
     bool hasGravity;
@@ -35,15 +39,16 @@ struct PhysicComponent
     }
 };
 
+/// Sprite Data (Used in Sprite Component & HSpritesheet Component)
 struct SpriteData
 {
     sf::Sprite sprite;
     std::string name;
-    bool isFlipped;
+    std::vector<bool> isFlipped;
     float rotationDegree;
     float scaleVal;
-    SpriteData(const sf::Texture &texture, std::string name = "", bool isFlipped = false, float scaleVal = 1.f, sf::Vector2f origin = {0, 0})
-        : sprite(texture), name(name), isFlipped(isFlipped), rotationDegree(0), scaleVal(scaleVal)
+    SpriteData(const sf::Texture &texture, std::string name = "", float scaleVal = 1.f, sf::Vector2f origin = {0, 0})
+        : sprite(texture), name(name), isFlipped({false, false}), rotationDegree(0), scaleVal(scaleVal)
     {
         sprite.setOrigin(origin);
         sprite.setScale({scaleVal, scaleVal});
@@ -51,19 +56,19 @@ struct SpriteData
 };
 
 // TODO: add z order
+/// Sprite Component
 struct SpriteComponent
 {
     SpriteData spriteData;
 
     SpriteComponent(
         const sf::Texture &texture, std::string name = "",
-        bool isFlipped = false, float scaleVal = 1.f, sf::Vector2f originRatio = {0.5, 0.5}
-    ) : spriteData(texture, name, isFlipped, scaleVal, Utils::getVectorF(originRatio, texture.getSize()))
+        float scaleVal = 1.f, sf::Vector2f originRatio = {0.5, 0.5}) : spriteData(texture, name, scaleVal, Utils::getVectorF(originRatio, texture.getSize()))
     {
     }
 };
 
-// Horizontal Spritesheet component
+/// Horizontal Spritesheet Component
 struct HSpritesheetComponent
 {
     SpriteData spriteData;
@@ -74,9 +79,8 @@ struct HSpritesheetComponent
     int nFrame;
     bool isLoop;
     HSpritesheetComponent(const sf::Texture &texture, int fps, std::string name = "",
-                          bool isFlipped = false, sf::Vector2u frameSize = {0, 0},
-                          float scaleVal = 1.f, sf::Vector2f originRatio = {0.5, 0.5})
-        : spriteData(texture, name, isFlipped, scaleVal, Utils::getVectorF(originRatio, frameSize)), fps(fps),
+                          sf::Vector2u frameSize = {0, 0}, float scaleVal = 1.f, sf::Vector2f originRatio = {0.5, 0.5})
+        : spriteData(texture, name, scaleVal, Utils::getVectorF(originRatio, frameSize)), fps(fps),
           frameSize(frameSize), curFrame(0), _curFrame(0), nFrame(1), isLoop(true)
     {
         if (frameSize.x != 0)
@@ -84,26 +88,62 @@ struct HSpritesheetComponent
     }
 };
 
+/// Input Component
 struct InputComponent
 {
     std::vector<GameAction> listendedActions;
-    EntityType entityType;
-    InputComponent(std::vector<GameAction> actions, EntityType type)
-        : listendedActions(actions), entityType(type)
+    InputComponent(std::vector<GameAction> actions)
+        : listendedActions(actions)
     {
     }
 };
 
-struct BirdRotateComponent {
+/// Bird Rotate Component
+struct BirdRotateComponent
+{
     float defaultAngle;
     float threshold;
     BirdRotateComponent(float defaultAngle = -25.f, float threshold = 50.f)
         : defaultAngle(defaultAngle), threshold(threshold)
-        {}
+    {
+    }
 };
 
-struct InfBgComponent {
+/// Infinity Background Component
+struct InfBgComponent
+{
     int tag;
     float width;
     InfBgComponent(int tag, float width) : tag(tag), width(width) {}
+};
+
+/// Box Collider Component
+enum class ColliderTag
+{
+    Bird,
+    Pipe,
+    Ground
+};
+
+struct BoxColliderComponent
+{
+    ColliderTag tag;
+    sf::IntRect rect;
+    BoxColliderComponent(ColliderTag tag, sf::Vector2i size = {0, 0}, sf::Vector2i topLeft = {0, 0})
+        : tag(tag), rect(topLeft, size) {}
+    BoxColliderComponent(ColliderTag tag, sf::IntRect rect) : tag(tag), rect(rect) {}
+};
+
+struct LinePipeComponent
+{
+    SpriteComponent *top, *bottom;
+    float vSpace;
+    LinePipeComponent(float vSpace) : vSpace(vSpace) {
+        const sf::Texture& pipeTexture = TextureManager::getInstance().get("pipe");
+        const std::string name = "pipe";
+        top = new SpriteComponent(pipeTexture, name, 1, {0.5, 0});
+        top->spriteData.isFlipped = {false, true};
+        bottom = new SpriteComponent(pipeTexture, name, 1, {0.5, 0});
+        bottom->spriteData.isFlipped = {false, false};
+    }
 };

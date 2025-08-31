@@ -3,8 +3,11 @@
 #include "utils.h"
 
 enum class EntityType {
-    PLAYER,
-    MENU
+    BIRD,
+    MENU,
+    PIPE,
+    GROUND,
+    BACKGROUND
 };
 
 class Entity
@@ -12,13 +15,18 @@ class Entity
 private:
     static inline int m_nextId = 0;
     int m_id;
+    EntityType m_type;
     std::unordered_map<std::string, void*> m_components;
 public:
-    Entity() : m_id(m_nextId++) {};
+    Entity(EntityType type) : m_id(m_nextId++), m_type(type) {};
     ~Entity() {};
 
     int getId() const {
         return m_id;
+    }
+
+    EntityType getType() const {
+        return m_type;
     }
 
     template<typename T>

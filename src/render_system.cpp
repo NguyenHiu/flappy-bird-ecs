@@ -2,20 +2,25 @@
 #include "component.h"
 #include "logger.h"
 
-void flipSprite(bool isFlipped, sf::Sprite &sprite)
+void flipSprite(std::vector<bool> isFlipped, sf::Sprite &sprite)
 {
+    if (isFlipped.size() != 2)
+        return;
+
     // Flip
-    if (isFlipped != (sprite.getScale().x < 0))
-    {
-        Logger::Debug("Flipping sprite...");
-        sf::Vector2f curScale = sprite.getScale();
-        sprite.setScale({-curScale.x, curScale.y});
-    }
+    sf::Vector2f _scale = {1, 1};
+    sf::Vector2f curScale = sprite.getScale();
+    if (isFlipped[0] != (curScale.x < 0))
+        _scale.x = -1;
+    if (isFlipped[1] != (curScale.y < 0))
+        _scale.y = -1;
+    sprite.setScale({curScale.x * _scale.x, curScale.y * _scale.y});
 }
 
-void rotateSprite(float rotationDegrees, sf::Sprite& sprite) 
+void rotateSprite(float rotationDegrees, sf::Sprite &sprite)
 {
-    if (sprite.getRotation().asDegrees() != rotationDegrees) {
+    if (sprite.getRotation().asDegrees() != rotationDegrees)
+    {
         sprite.setRotation(sf::degrees(rotationDegrees));
     }
 }
@@ -36,50 +41,78 @@ void RenderSystem::update(std::vector<Entity *> &entities, float dt)
         // Render SpriteComponent
         if (entity->hasComponent<SpriteComponent>())
         {
-            SpriteComponent *sc = entity->getComponent<SpriteComponent>();
-            flipSprite(sc->spriteData.isFlipped, sc->spriteData.sprite);
-            rotateSprite(sc->spriteData.rotationDegree, sc->spriteData.sprite);
-
-            // Update sprite position
-            if (entity->hasComponent<PositionComponent>())
-            {
-                PositionComponent *pc = entity->getComponent<PositionComponent>();
-                sc->spriteData.sprite.setPosition({pc->x, pc->y});
-            }
-
-            m_rw->draw(sc->spriteData.sprite);
+            auto *comp = entity->getComponent<PositionComponent>();
+            sf::Vector2f changedPos = {0, 0};
+            if (comp != nullptr)
+                changedPos = {comp->x, comp->y};
+            this->renderSpriteComponent(entity->getComponent<SpriteComponent>()->spriteData, changedPos);
         }
 
         // Run animation
         if (entity->hasComponent<HSpritesheetComponent>())
         {
             HSpritesheetComponent *sc = entity->getComponent<HSpritesheetComponent>();
-            flipSprite(sc->spriteData.isFlipped, sc->spriteData.sprite);
-            rotateSprite(sc->spriteData.rotationDegree, sc->spriteData.sprite);
 
             // Update sprite frame
             sc->_curFrame += sc->fps * dt;
             sc->curFrame = static_cast<int>(sc->_curFrame);
             if (sc->curFrame >= sc->nFrame)
             {
-                if (sc->isLoop) {
+                if (sc->isLoop)
+                {
                     sc->_curFrame -= sc->curFrame;
                     sc->curFrame = 0;
                 }
-                else {
+                else
+                {
                     sc->curFrame = sc->nFrame - 1;
                 }
             }
             sc->spriteData.sprite.setTextureRect(getIntRect(sc->curFrame, sc->frameSize));
 
             // Update sprite position
+            auto *comp = entity->getComponent<PositionComponent>();
+            sf::Vector2f changedPos = {0, 0};
+            if (comp != nullptr)
+                changedPos = {comp->x, comp->y};
+            this->renderSpriteComponent(sc->spriteData, changedPos);
+        }
+
+        // Render line pipe
+        if (entity->hasComponent<LinePipeComponent>())
+        {
+            Logger::Debug("Trying to render line pipe component");
+            LinePipeComponent *comp = entity->getComponent<LinePipeComponent>();
+            SpriteComponent *top = comp->top, *bottom = comp->bottom;
+            flipSprite(top->spriteData.isFlipped, top->spriteData.sprite);
+            flipSprite(bottom->spriteData.isFlipped, bottom->spriteData.sprite);
+
+            // Update sprite position
             if (entity->hasComponent<PositionComponent>())
             {
                 PositionComponent *pc = entity->getComponent<PositionComponent>();
-                sc->spriteData.sprite.setPosition({pc->x, pc->y});
+                top->spriteData.sprite.setPosition({pc->x, pc->y - comp->vSpace / 2});
+                bottom->spriteData.sprite.setPosition({pc->x, pc->y + comp->vSpace / 2});
             }
 
-            m_rw->draw(sc->spriteData.sprite);
+            // Update sprite position
+            auto *pc = entity->getComponent<PositionComponent>();
+            sf::Vector2f changedPosTop = {0, 0}, changedPosBottom = {0, 0};
+            if (comp != nullptr)
+            {
+                changedPosTop = {pc->x, pc->y - comp->vSpace / 2};
+                changedPosBottom = {pc->x, pc->y + comp->vSpace / 2};
+            }
+            this->renderSpriteComponent(bottom->spriteData, changedPosBottom);
+            this->renderSpriteComponent(top->spriteData, changedPosTop);
         }
     }
+}
+
+void RenderSystem::renderSpriteComponent(SpriteData &spriteData, sf::Vector2f newPos)
+{
+    flipSprite(spriteData.isFlipped, spriteData.sprite);
+    rotateSprite(spriteData.rotationDegree, spriteData.sprite);
+    spriteData.sprite.setPosition(newPos);
+    m_rw->draw(spriteData.sprite);
 }
