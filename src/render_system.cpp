@@ -1,6 +1,7 @@
 #include "render_system.h"
 #include "component.h"
 #include "logger.h"
+#include "util.h"
 
 void flipSprite(std::vector<bool> isFlipped, sf::Sprite &sprite)
 {
@@ -76,35 +77,6 @@ void RenderSystem::update(std::vector<Entity *> &entities, float dt)
             if (comp != nullptr)
                 changedPos = {comp->x, comp->y};
             this->renderSpriteComponent(sc->spriteData, changedPos);
-        }
-
-        // Render line pipe
-        if (entity->hasComponent<LinePipeComponent>())
-        {
-            Logger::Debug("Trying to render line pipe component");
-            LinePipeComponent *comp = entity->getComponent<LinePipeComponent>();
-            SpriteComponent *top = comp->top, *bottom = comp->bottom;
-            flipSprite(top->spriteData.isFlipped, top->spriteData.sprite);
-            flipSprite(bottom->spriteData.isFlipped, bottom->spriteData.sprite);
-
-            // Update sprite position
-            if (entity->hasComponent<PositionComponent>())
-            {
-                PositionComponent *pc = entity->getComponent<PositionComponent>();
-                top->spriteData.sprite.setPosition({pc->x, pc->y - comp->vSpace / 2});
-                bottom->spriteData.sprite.setPosition({pc->x, pc->y + comp->vSpace / 2});
-            }
-
-            // Update sprite position
-            auto *pc = entity->getComponent<PositionComponent>();
-            sf::Vector2f changedPosTop = {0, 0}, changedPosBottom = {0, 0};
-            if (comp != nullptr)
-            {
-                changedPosTop = {pc->x, pc->y - comp->vSpace / 2};
-                changedPosBottom = {pc->x, pc->y + comp->vSpace / 2};
-            }
-            this->renderSpriteComponent(bottom->spriteData, changedPosBottom);
-            this->renderSpriteComponent(top->spriteData, changedPosTop);
         }
     }
 }

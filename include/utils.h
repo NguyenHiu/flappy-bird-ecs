@@ -37,7 +37,25 @@ namespace Utils
         };
     }
 
-    inline bool isOverlapping(sf::IntRect r1, sf::IntRect r2)
+    template <typename T>
+    sf::Vector2f getVectorF(T x, T y)
+    {
+        return {
+            static_cast<float>(x),
+            static_cast<float>(y)
+        };
+    }
+
+    template <typename T>
+    sf::Vector2i getVectorI(T x, T y)
+    {
+        return {
+            static_cast<int>(x),
+            static_cast<int>(y)
+        };
+    }
+
+    inline bool isOverlapping(sf::FloatRect r1, sf::FloatRect r2)
     {
         return r2.position.x < r1.position.x + r1.size.x &&
                r1.position.x < r2.position.x + r2.size.x &&
@@ -45,4 +63,12 @@ namespace Utils
                r1.position.y < r2.position.y + r2.size.y;
     }
 
+    /// @brief Return a random integer in [min, max]
+    /// @param min 
+    /// @param max 
+    /// @return the random integer
+    inline int randInt(int min, int max)
+    {
+        return std::rand()%(max-min) + min;
+    }
 } // namespace Utils

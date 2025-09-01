@@ -116,34 +116,3 @@ struct InfBgComponent
     float width;
     InfBgComponent(int tag, float width) : tag(tag), width(width) {}
 };
-
-/// Box Collider Component
-enum class ColliderTag
-{
-    Bird,
-    Pipe,
-    Ground
-};
-
-struct BoxColliderComponent
-{
-    ColliderTag tag;
-    sf::IntRect rect;
-    BoxColliderComponent(ColliderTag tag, sf::Vector2i size = {0, 0}, sf::Vector2i topLeft = {0, 0})
-        : tag(tag), rect(topLeft, size) {}
-    BoxColliderComponent(ColliderTag tag, sf::IntRect rect) : tag(tag), rect(rect) {}
-};
-
-struct LinePipeComponent
-{
-    SpriteComponent *top, *bottom;
-    float vSpace;
-    LinePipeComponent(float vSpace) : vSpace(vSpace) {
-        const sf::Texture& pipeTexture = TextureManager::getInstance().get("pipe");
-        const std::string name = "pipe";
-        top = new SpriteComponent(pipeTexture, name, 1, {0.5, 0});
-        top->spriteData.isFlipped = {false, true};
-        bottom = new SpriteComponent(pipeTexture, name, 1, {0.5, 0});
-        bottom->spriteData.isFlipped = {false, false};
-    }
-};

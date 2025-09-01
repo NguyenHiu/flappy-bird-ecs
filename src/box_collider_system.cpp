@@ -5,57 +5,63 @@
 
 void BoxColliderSystem::update(std::vector<Entity *> &entities, float dt)
 {
+    if (GameManager::getInstance().getGameState() == GameState::IDLE)
+        return;
+
     for (auto *entity : entities)
     {
-        // Skip if the entity doesn't have Box Collider
-        if (!entity->hasComponent<BoxColliderComponent>())
+        if (m_ignoreTypes.find(entity->getType()) != m_ignoreTypes.end())
             continue;
 
-        BoxColliderComponent *entityBox = entity->getComponent<BoxColliderComponent>();
-        auto it = m_funcs.find(entityBox->tag);
+        sf::FloatRect entityRect = this->getBound(entity);
+        if (entityRect == sf::FloatRect())
+            continue;
+
+        auto it = m_funcs.find(entity->getType());
         // Skip if there is no setup logic for the collision
         if (it == m_funcs.end())
             continue;
+
         for (auto *other : entities)
         {
             // Skip the same entity
             if (other->getId() == entity->getId())
                 continue;
 
-            // Only process if `other` entity also has Box Collider Component
-            if (!other->hasComponent<BoxColliderComponent>())
+            if (m_ignoreTypes.find(other->getType()) != m_ignoreTypes.end())
                 continue;
 
-            BoxColliderComponent *otherBox = other->getComponent<BoxColliderComponent>();
-
             // Check if they are collided
-            // Logger::Debug("entity", entityBox->rect.position.x, entityBox->rect.position.y, entityBox->rect.size.x, entityBox->rect.size.y);
-            // Logger::Debug("entity", otherBox->rect.position.x, otherBox->rect.position.y, otherBox->rect.size.x, otherBox->rect.size.y);
-            if (Utils::isOverlapping(entityBox->rect, otherBox->rect))
-            {
-                // Logger::Debug("is overlapping...");
-                // Process if valid
+            sf::FloatRect otherRect = this->getBound(other);
+            if (otherRect == sf::FloatRect())
+                continue;
+            if (Utils::isOverlapping(entityRect, otherRect))
                 it->second(entity, other);
-            }
         }
     }
 }
 
 void BoxColliderSystem::processBirdCollider(Entity *bird, Entity *other)
 {
-    if (!other->hasComponent<BoxColliderComponent>())
-        return;
-
-    BoxColliderComponent *comp = other->getComponent<BoxColliderComponent>();
-    switch (comp->tag)
+    switch (other->getType())
     {
-    case ColliderTag::Ground:
+    case EntityType::PIPE:
+    case EntityType::GROUND:
     {
         GameManager::getInstance().endGame();
         break;
     }
     default:
-        Logger::Warn("Detect anomaly object, O` E' O` E'");
+        Logger::Warn("Detect anomaly object, O` E' O` E'", static_cast<int>(other->getType()));
         break;
     }
+}
+
+sf::FloatRect BoxColliderSystem::getBound(Entity *entity)
+{
+    if (entity->hasComponent<SpriteComponent>())
+        return entity->getComponent<SpriteComponent>()->spriteData.sprite.getGlobalBounds();
+    else if (entity->hasComponent<HSpritesheetComponent>())
+        return entity->getComponent<HSpritesheetComponent>()->spriteData.sprite.getGlobalBounds();
+    return sf::FloatRect();
 }

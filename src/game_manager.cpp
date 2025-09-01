@@ -7,6 +7,7 @@
 #include "input_system.h"
 #include "inf_bg_system.h"
 #include "box_collider_system.h"
+#include "pipe_system.h"
 #include "component.h"
 
 void GameManager::update(float dt)
@@ -38,12 +39,27 @@ void GameManager::initGame(sf::RenderWindow *game)
     this->addSystem(new InputSystem(nullptr));
     this->addSystem(new InfBgSystem());
     this->addSystem(new BoxColliderSystem());
+    this->addSystem(new PipeSystem(START_POSITION.x * 3 + 10, START_POSITION.y, -50, 50, 250, 75, 125));
 
     // Init background
     Entity *background = new Entity(EntityType::BACKGROUND);
     background->addComponent(new SpriteComponent(tMgr.get("background"), "background", 1.5, {0, 0}));
     background->addComponent(new PositionComponent(0, 0));
     this->addEntity(background);
+
+    // Init pipes
+    const int nPipes = 10;
+    const float pipeScaleVal = 1.5f;
+    const sf::Texture &pipeTxt = tMgr.get("pipe");
+    for (int i = 0; i < nPipes; ++i)
+    {
+        Entity *pipe = new Entity(EntityType::PIPE);
+        pipe->addComponent(new SpriteComponent(pipeTxt, "pipe", pipeScaleVal, {0, 0}));
+        pipe->addComponent(new PositionComponent());
+        pipe->addComponent(new PhysicComponent(false));
+        pipe->addComponent(new VelocityComponent(-150.f));
+        this->addEntity(pipe);
+    }
 
     // Init ground
     sf::Vector2u baseSize = tMgr.get("base").getSize();
@@ -55,18 +71,8 @@ void GameManager::initGame(sf::RenderWindow *game)
         ground->addComponent(new PhysicComponent(false, 0, 0, 0));
         ground->addComponent(new InfBgComponent(1, baseSize.x));
         ground->addComponent(new VelocityComponent(-150.f, 0, 150.f));
-        ground->addComponent(new BoxColliderComponent(ColliderTag::Ground, Utils::getVectorI(baseSize)));
         this->addEntity(ground);
     }
-
-    // Init pipes
-    Entity *pipe = new Entity(EntityType::PIPE);
-    pipe->addComponent(new LinePipeComponent(150));
-    pipe->addComponent(new PositionComponent(START_POSITION.x*2, START_POSITION.y));
-    pipe->addComponent(new PhysicComponent(false, 0, 0, 0));
-    pipe->addComponent(new VelocityComponent(-150.f, 0, 150.f));
-    // pipe->addComponent(new BoxColliderComponent(ColliderTag))
-    this->addEntity(pipe);
 
     // Init bird
     Entity *bird = new Entity(EntityType::BIRD);
@@ -74,10 +80,10 @@ void GameManager::initGame(sf::RenderWindow *game)
     bird->addComponent(new PositionComponent(START_POSITION.x, START_POSITION.y));
     bird->addComponent(new VelocityComponent(0, 0, MAX_SPEED));
     // bird->addComponent(new SpriteComponent(tMgr.get("bird"), "bird"));
-    bird->addComponent(new HSpritesheetComponent(tMgr.get(BIRD_TAG), BIRD_FPS, BIRD_TAG, BIRD_FRAME, 1.2));
+    const float birdScaleVal = 1.5f;
+    bird->addComponent(new HSpritesheetComponent(tMgr.get(BIRD_TAG), BIRD_FPS, BIRD_TAG, BIRD_FRAME, birdScaleVal));
     bird->addComponent(new InputComponent({GameAction::JUMP}));
     bird->addComponent(new BirdRotateComponent(BIRD_DEFAULT_ROTATE, ROTATE_THRESHOLD));
-    bird->addComponent(new BoxColliderComponent(ColliderTag::Bird, Utils::getVectorI(BIRD_FRAME)));
     this->addEntity(bird);
 
     this->m_state = GameState::IDLE;
@@ -107,9 +113,6 @@ void GameManager::restartGame()
             PositionComponent *posComp = entity->getComponent<PositionComponent>();
             posComp->x = START_POSITION.x;
             posComp->y = START_POSITION.y;
-            BoxColliderComponent *colliderComp = entity->getComponent<BoxColliderComponent>();
-            colliderComp->rect.position.x = START_POSITION.x;
-            colliderComp->rect.position.y = START_POSITION.y;
             entity->getComponent<HSpritesheetComponent>()->spriteData.rotationDegree = 0.f;
             break;
         }

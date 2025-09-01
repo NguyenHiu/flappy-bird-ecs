@@ -98,15 +98,6 @@ void PhysicsSystem::processEntityRun(Entity *entity, float dt)
     pos->x += vel->dx * dt;
     pos->y += vel->dy * dt;
 
-    if (entity->hasComponent<BoxColliderComponent>())
-    {
-        BoxColliderComponent *boxComp = entity->getComponent<BoxColliderComponent>();
-        boxComp->rect.position = {
-            static_cast<int>(pos->x),
-            static_cast<int>(pos->y)};
-        // Assume size won't change in this game xDD
-    }
-
     // Rotate the bird =D
     if (entity->hasComponent<BirdRotateComponent>())
     {
