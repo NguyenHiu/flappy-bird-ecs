@@ -34,10 +34,10 @@ void GameManager::initGame(sf::RenderWindow *game)
     TextureManager &tMgr = TextureManager::getInstance();
 
     // Init systems
-    this->addSystem(new RenderSystem(game));
-    this->addSystem(new PhysicsSystem(GRAVITY));
-    this->addSystem(new InputSystem(nullptr));
     this->addSystem(new InfBgSystem());
+    this->addSystem(new InputSystem(nullptr));
+    this->addSystem(new PhysicsSystem(GRAVITY));
+    this->addSystem(new RenderSystem(game));
     this->addSystem(new BoxColliderSystem());
     this->addSystem(new PipeSystem(START_POSITION.x * 3 + 10, START_POSITION.y, -50, 50, 250, 75, 125));
 
@@ -82,7 +82,7 @@ void GameManager::initGame(sf::RenderWindow *game)
     // bird->addComponent(new SpriteComponent(tMgr.get("bird"), "bird"));
     const float birdScaleVal = 1.5f;
     bird->addComponent(new HSpritesheetComponent(tMgr.get(BIRD_TAG), BIRD_FPS, BIRD_TAG, BIRD_FRAME, birdScaleVal));
-    bird->addComponent(new InputComponent({GameAction::JUMP}));
+    bird->addComponent(new InputComponent({GameAction::JUMP, GameAction::RESTART}));
     bird->addComponent(new BirdRotateComponent(BIRD_DEFAULT_ROTATE, ROTATE_THRESHOLD));
     this->addEntity(bird);
 
@@ -91,17 +91,37 @@ void GameManager::initGame(sf::RenderWindow *game)
 
 void GameManager::startGame()
 {
+    Logger::Debug("startGame()");
     this->m_state = GameState::RUN;
+}
+
+void GameManager::setIsEndingGame()
+{
+    for (auto *entity : m_entities)
+    {
+        if (entity->getType() == EntityType::BIRD)
+        {
+            entity->getComponent<HSpritesheetComponent>()->isLoop = false;
+        }
+    }
+    this->m_state = GameState::IS_ENDING;
 }
 
 void GameManager::endGame()
 {
-    // Assume: restart game immediately
-    this->restartGame();
+    for (auto *entity : m_entities)
+    {
+        if (entity->getType() == EntityType::BIRD)
+        {
+            entity->getComponent<HSpritesheetComponent>()->isLoop = false;
+        }
+    }
+    this->m_state = GameState::END;
 }
 
 void GameManager::restartGame()
 {
+    Logger::Debug("restartGame()");
     this->m_state = GameState::IDLE;
 
     for (auto *entity : m_entities)
@@ -110,10 +130,17 @@ void GameManager::restartGame()
         {
         case EntityType::BIRD:
         {
+            if (
+                !entity->hasComponent<PositionComponent>() ||
+                !entity->hasComponent<HSpritesheetComponent>())
+                break;
+
             PositionComponent *posComp = entity->getComponent<PositionComponent>();
             posComp->x = START_POSITION.x;
             posComp->y = START_POSITION.y;
-            entity->getComponent<HSpritesheetComponent>()->spriteData.rotationDegree = 0.f;
+            HSpritesheetComponent *hsc = entity->getComponent<HSpritesheetComponent>();
+            hsc->spriteData.rotationDegree = 0.f;
+            hsc->isLoop = true;
             break;
         }
 

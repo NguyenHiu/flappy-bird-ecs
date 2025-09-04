@@ -3,26 +3,26 @@
 #include "logger.h"
 #include "util.h"
 
-void flipSprite(std::vector<bool> isFlipped, sf::Sprite &sprite)
+void flipSprite(SpriteData& spriteData, sf::Sprite &sprite)
 {
-    if (isFlipped.size() != 2)
+    if (spriteData.isFlipped.size() != 2)
         return;
 
     // Flip
     sf::Vector2f _scale = {1, 1};
     sf::Vector2f curScale = sprite.getScale();
-    if (isFlipped[0] != (curScale.x < 0))
+    if (spriteData.isFlipped[0] != (curScale.x < 0))
         _scale.x = -1;
-    if (isFlipped[1] != (curScale.y < 0))
+    if (spriteData.isFlipped[1] != (curScale.y < 0))
         _scale.y = -1;
     sprite.setScale({curScale.x * _scale.x, curScale.y * _scale.y});
 }
 
-void rotateSprite(float rotationDegrees, sf::Sprite &sprite)
+void rotateSprite(SpriteData& spriteData, sf::Sprite &sprite)
 {
-    if (sprite.getRotation().asDegrees() != rotationDegrees)
+    if (sprite.getRotation().asDegrees() != spriteData.rotationDegree)
     {
-        sprite.setRotation(sf::degrees(rotationDegrees));
+        sprite.setRotation(sf::degrees(spriteData.rotationDegree));
     }
 }
 
@@ -83,8 +83,8 @@ void RenderSystem::update(std::vector<Entity *> &entities, float dt)
 
 void RenderSystem::renderSpriteComponent(SpriteData &spriteData, sf::Vector2f newPos)
 {
-    flipSprite(spriteData.isFlipped, spriteData.sprite);
-    rotateSprite(spriteData.rotationDegree, spriteData.sprite);
+    flipSprite(spriteData, spriteData.sprite);
+    rotateSprite(spriteData, spriteData.sprite);
     spriteData.sprite.setPosition(newPos);
     m_rw->draw(spriteData.sprite);
 }

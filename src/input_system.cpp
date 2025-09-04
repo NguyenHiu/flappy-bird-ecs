@@ -47,13 +47,17 @@ void InputSystem::processPlayerInfo(Entity *entity, InputComponent *comp)
             {
             case GameAction::JUMP:
             {
+                if (
+                    GameManager::getInstance().getGameState() == GameState::END || 
+                    GameManager::getInstance().getGameState() == GameState::IS_ENDING
+                )
+                    break;
+
                 // Try to start the game
                 if (GameManager::getInstance().getGameState() == GameState::IDLE)
                 {
                     GameManager::getInstance().startGame();
                 }
-
-                // Logger::Debug("state: ", static_cast<int>(GameManager::getInstance().getGameState()));
 
                 PhysicComponent *comp_phy = entity->getComponent<PhysicComponent>();
                 // Check jump timer
@@ -68,6 +72,15 @@ void InputSystem::processPlayerInfo(Entity *entity, InputComponent *comp)
                 // {
                 //     Logger::Info("Waiting for the cooldown...");
                 // }
+                break;
+            }
+
+            case GameAction::RESTART:
+            {
+                if (GameManager::getInstance().getGameState() == GameState::END)
+                {
+                    GameManager::getInstance().restartGame();
+                }
                 break;
             }
 

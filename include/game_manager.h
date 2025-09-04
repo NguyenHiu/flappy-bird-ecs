@@ -7,6 +7,7 @@
 enum class GameState {
     IDLE,
     RUN,
+    IS_ENDING,
     END
 };
 
@@ -34,6 +35,7 @@ public:
     void addSystem(AbstractSystem* system);
     void initGame(sf::RenderWindow* game);
     void startGame();
+    void setIsEndingGame();
     void endGame();
     void restartGame();
 };

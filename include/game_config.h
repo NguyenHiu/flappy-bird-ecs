@@ -11,4 +11,4 @@ const std::string GAME_TITLE = "Nappy-Bird";
 const sf::Vector2u BIRD_FRAME = {34, 24};
 const float MAX_SPEED = 700.f;
 const float BIRD_DEFAULT_ROTATE = -25.f;
-const float ROTATE_THRESHOLD = 450.f;
+const float ROTATE_THRESHOLD = 630.f;

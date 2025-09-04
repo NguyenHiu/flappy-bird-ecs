@@ -45,10 +45,14 @@ void BoxColliderSystem::processBirdCollider(Entity *bird, Entity *other)
 {
     switch (other->getType())
     {
-    case EntityType::PIPE:
     case EntityType::GROUND:
     {
         GameManager::getInstance().endGame();
+        break;
+    }
+    case EntityType::PIPE:
+    {
+        GameManager::getInstance().setIsEndingGame();
         break;
     }
     default:

@@ -13,6 +13,12 @@ void PhysicsSystem::update(std::vector<Entity *> &entities, float dt)
     case GameState::RUN:
         this->updateRunState(entities, dt);
         break;
+    case GameState::IS_ENDING:
+        this->updateEndState(entities, dt);
+        break;
+    case GameState::END:
+        break;
+
     default:
         Logger::Warn("Detect anomaly game state, O` E' O` E'");
         break;
@@ -63,9 +69,22 @@ void PhysicsSystem::processBirdIdle(Entity *entity)
 
 void PhysicsSystem::updateRunState(std::vector<Entity *> &entities, float dt)
 {
+    // Logger::Debug("Run State updating...");
     for (auto *entity : entities)
     {
         this->processEntityRun(entity, dt);
+    }
+}
+
+void PhysicsSystem::updateEndState(std::vector<Entity *> &entities, float dt)
+{
+    // Process bird only - make it fall
+    for (auto* entity : entities)
+    {
+        if (entity->getType() == EntityType::BIRD)
+        {
+            this->processEntityRun(entity, dt);
+        }
     }
 }
 
@@ -88,13 +107,14 @@ void PhysicsSystem::processEntityRun(Entity *entity, float dt)
     if (phy && phy->hasGravity && !phy->onGround)
     {
         vel->dy += m_gravity * phy->gravityScale * dt;
+        // Logger::Debug("apply gravity, Vy:", vel->dy);
     }
 
     // Clamp velocity
     vel->dx = std::clamp(vel->dx, -vel->maxSpeed, vel->maxSpeed);
     vel->dy = std::clamp(vel->dy, -vel->maxSpeed, vel->maxSpeed);
 
-    // Apply velocity
+    // Apply velocity   
     pos->x += vel->dx * dt;
     pos->y += vel->dy * dt;
 

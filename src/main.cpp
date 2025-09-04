@@ -21,6 +21,11 @@ int main() {
     GameManager& gMgr = GameManager::getInstance();
     gMgr.initGame(game);
 
+    sf::Font f("assets/BoldPixels1.4.ttf");
+    sf::Text t(f, "SPACE -> jump;\nESC -> restart after death");
+    t.setCharacterSize(15);
+    t.setPosition({START_POSITION.x*2/3, 10});
+
     sf::Clock clock;
     while(game->isOpen()) {
         while(const auto event = game->pollEvent()) {
@@ -31,6 +36,7 @@ int main() {
         float dt = clock.restart().asSeconds();
         game->clear();
         gMgr.update(dt);
+        game->draw(t);
         game->display();
     }
 }

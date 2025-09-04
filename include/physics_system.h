@@ -20,7 +20,7 @@ private:
     void processBirdRotate(Entity *entity, float vy, float maxYSpeed);
     void updateIdleState(std::vector<Entity *> &entities, float dt);
     void processBirdIdle(Entity* entity);
-    void processGroundIdle(Entity* entity, float dt);
     void updateRunState(std::vector<Entity *> &entities, float dt);
+    void updateEndState(std::vector<Entity *> &entities, float dt);
     void processEntityRun(Entity* entity, float dt);
 };

@@ -6,7 +6,8 @@
 enum class GameAction
 {
     NONE,
-    JUMP
+    JUMP,
+    RESTART
 };
 
 class KeyMap
@@ -19,6 +20,7 @@ public:
     KeyMap()
     {
         setKeyBinding(sf::Keyboard::Key::Space, GameAction::JUMP);
+        setKeyBinding(sf::Keyboard::Key::Escape, GameAction::RESTART);
     }
 
     void setKeyBinding(sf::Keyboard::Key key, GameAction action)
